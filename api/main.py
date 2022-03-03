@@ -1,3 +1,4 @@
+import json
 import os
 
 from bson import json_util
@@ -30,7 +31,7 @@ def get_collections():
 @app.get("/exercises")
 def get_exercises():
     cursor = _client[_DB][_Collection].find({})
-    return {i: json_util.dumps(doc) for i, doc in enumerate(cursor)}
+    return {i: json.loads(json_util.dumps(doc)) for i, doc in enumerate(cursor)}
 
 
 @app.get("/env")
