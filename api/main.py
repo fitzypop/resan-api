@@ -1,6 +1,6 @@
 import os
-from collections import defaultdict
 
+from bson import json_util
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pymongo import MongoClient
@@ -30,7 +30,7 @@ def get_collections():
 @app.get("/exercises")
 def get_exercises():
     cursor = _client[_DB][_Collection].find({})
-    return {i: doc for i, doc in enumerate(cursor)}
+    return {i: json_util.dumps(doc) for i, doc in enumerate(cursor)}
 
 
 @app.get("/env")
