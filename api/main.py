@@ -10,7 +10,7 @@ load_dotenv()
 _env = os.environ.get("HEROKU_ENV")
 _conn_str = os.environ.get("MONGO_CONN_STR")
 _client = MongoClient(_conn_str, serverSelectionTimeoutMS=5000)
-_DB = "Exercise"
+_DB = f"Db-{_env}"
 _Collection = "Exercises"
 
 app = FastAPI()
