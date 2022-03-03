@@ -18,3 +18,13 @@ heroku buildpacks:clear
 heroku buildpacks:add https://github.com/moneymeets/python-poetry-buildpack.git
 heroku buildpacks:add heroku/python
 ```
+
+## Deploy to heroku
+
+commit any git changes
+
+push like this
+
+```shell
+git push heroku main
+```
