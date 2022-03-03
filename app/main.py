@@ -1,13 +1,14 @@
-from dotenv import dotenv_values
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from pymongo import MongoClient
 from starlette.responses import RedirectResponse
 
-config = dotenv_values(".env")
+load_dotenv()
 
-mongo_user = config.get("MONGO_USER")
-mongo_password = config.get("MONGO_PASSWORD")
-mongo_host = config.get("MONGO_HOST")
+mongo_user = os.environ.get("MONGO_USER")
+mongo_password = os.environ.get("MONGO_PASSWORD")
+mongo_host = os.environ.get("MONGO_HOST")
 conn_str = f"mongodb+srv://{mongo_user}:{mongo_password}@{mongo_host}/Exercise?retryWrites=true&w=majority"
 client = MongoClient(conn_str, serverSelectionTimeoutMS=5000)
 DB = "Exercise"
