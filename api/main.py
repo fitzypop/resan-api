@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -29,7 +30,7 @@ def get_collections():
 @app.get("/exercises")
 def get_exercises():
     cursor = _client[_DB][_Collection].find({})
-    return {doc["_id"]: doc for doc in cursor}
+    return {i: doc for i, doc in enumerate(cursor)}
 
 
 @app.get("/env")
