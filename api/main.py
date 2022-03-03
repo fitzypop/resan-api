@@ -18,7 +18,7 @@ _Collection = "Exercises"
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def user():
     return RedirectResponse("/docs")
 
