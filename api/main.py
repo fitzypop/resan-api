@@ -7,6 +7,7 @@ from starlette.responses import RedirectResponse
 
 load_dotenv()
 
+_env = os.environ.get("HEROKU_ENV")
 _conn_str = os.environ.get("MONGO_CONN_STR")
 _client = MongoClient(_conn_str, serverSelectionTimeoutMS=5000)
 _DB = "Exercise"
@@ -28,3 +29,8 @@ def get_collections():
 @app.get("/exercises")
 def get_exercises():
     return _client[_DB][_Collection].find({})
+
+
+@app.get("/env")
+def get_env():
+    return {"heroku_env": _env}
