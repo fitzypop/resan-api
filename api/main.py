@@ -28,7 +28,8 @@ def get_collections():
 
 @app.get("/exercises")
 def get_exercises():
-    return _client[_DB][_Collection].find({})
+    cursor = _client[_DB][_Collection].find({})
+    return {doc["_id"]: doc for doc in cursor}
 
 
 @app.get("/env")
