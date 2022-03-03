@@ -1,6 +1,6 @@
 # resan-api
 
-Using python 3.10
+Using python 3.10.1
 Poetry
 FastAPI
 Pymongo

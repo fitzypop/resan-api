@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pymongo import MongoClient
@@ -6,13 +7,10 @@ from starlette.responses import RedirectResponse
 
 load_dotenv()
 
-mongo_user = os.environ.get("MONGO_USER")
-mongo_password = os.environ.get("MONGO_PASSWORD")
-mongo_host = os.environ.get("MONGO_HOST")
-conn_str = f"mongodb+srv://{mongo_user}:{mongo_password}@{mongo_host}/Exercise?retryWrites=true&w=majority"
-client = MongoClient(conn_str, serverSelectionTimeoutMS=5000)
-DB = "Exercise"
-Collection = "Exercises"
+_conn_str = os.environ.get("MONGO_CONN_STR")
+_client = MongoClient(_conn_str, serverSelectionTimeoutMS=5000)
+_DB = "Exercise"
+_Collection = "Exercises"
 
 app = FastAPI()
 
@@ -24,9 +22,9 @@ def user():
 
 @app.get("/collections")
 def get_collections():
-    return {"collections": client[DB].list_collection_names()}
+    return {"collections": _client[_DB].list_collection_names()}
 
 
 @app.get("/exercises")
 def get_exercises():
-    return client[DB][Collection].find({})
+    return _client[_DB][_Collection].find({})
