@@ -9,7 +9,8 @@ python = "3.10.1"
 fastapi = "^0.74.1"
 uvicorn = "^0.17.5"
 python-dotenv = "^0.19.2"
-motor = "^2.5.1"
+motor = "^2.5.1" # async mongodb clientg
+dnspython = "^2.2.0" # need this package to use `mongodb+srv://` style connections
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"

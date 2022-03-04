@@ -1,19 +1,11 @@
-import json
-import os
+# import json
+# import os
 
-from bson import json_util
-from dotenv import load_dotenv
+# from bson import json_util
 from fastapi import FastAPI
-from pymongo import MongoClient
 from starlette.responses import RedirectResponse
 
-load_dotenv()
-
-_env = os.environ.get("APP_ENV")
-_conn_str = os.environ.get("MONGO_CONN_STR")
-_client = MongoClient(_conn_str, serverSelectionTimeoutMS=5000)
-_DB = f"Resan{_env}"
-_Collection = "Exercises"
+from api.database import fetch_all_exercises, get_app_env, list_collections
 
 app = FastAPI()
 
@@ -24,17 +16,18 @@ def read_root():
 
 
 @app.get("/collections")
-def get_collections():
-    return {"collections": _client[_DB].list_collection_names()}
+async def get_collections():
+    response = await list_collections()
+    return {"collections": response}
 
 
 @app.get("/exercises")
-def get_exercises():
-    cursor = _client[_DB][_Collection].find({})
-    # I have no idea what I'm doing, for now
-    return {i: json.loads(json_util.dumps(doc)) for i, doc in enumerate(cursor)}
+async def get_exercises():
+    response = await fetch_all_exercises()
+    return response
 
 
 @app.get("/env")
 def get_env():
-    return {"heroku_env": _env}
+    env = get_app_env()
+    return {"app_env": env}
