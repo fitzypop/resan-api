@@ -9,17 +9,17 @@ from starlette.responses import RedirectResponse
 
 load_dotenv()
 
-_env = os.environ.get("HEROKU_ENV")
+_env = os.environ.get("APP_ENV")
 _conn_str = os.environ.get("MONGO_CONN_STR")
 _client = MongoClient(_conn_str, serverSelectionTimeoutMS=5000)
-_DB = f"Db-{_env}"
+_DB = f"Resan{_env}"
 _Collection = "Exercises"
 
 app = FastAPI()
 
 
 @app.get("/", include_in_schema=False)
-def user():
+def read_root():
     return RedirectResponse("/docs")
 
 
@@ -31,6 +31,7 @@ def get_collections():
 @app.get("/exercises")
 def get_exercises():
     cursor = _client[_DB][_Collection].find({})
+    # I have no idea what I'm doing, for now
     return {i: json.loads(json_util.dumps(doc)) for i, doc in enumerate(cursor)}
 
 
