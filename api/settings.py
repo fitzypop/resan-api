@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     def must_have_value(cls, v):
         if v in [None, ""]:
             raise ValueError("Env variables not loaded.")
+        return v
 
     @property
     def db(self):
