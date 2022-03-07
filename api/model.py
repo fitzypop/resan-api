@@ -1,7 +1,7 @@
 from enum import Enum
 
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 
 class PyObjectId(ObjectId):
@@ -37,3 +37,8 @@ class Exercise(BaseModel):
         allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
         schema_extras = {"example": {}}
+
+
+class User(BaseModel):
+    email: EmailStr
+    password: str
