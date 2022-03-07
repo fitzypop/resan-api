@@ -1,35 +1,7 @@
-# import os
-
 import motor.motor_asyncio
-from pydantic import BaseSettings, validator
 
 from api.model import Exercise
-
-# from dotenv import load_dotenv
-
-
-# load_dotenv()
-
-_SENTINEL = "_SENTINEL"
-
-
-class Settings(BaseSettings):
-    mongo_conn_str: str = _SENTINEL
-    app_env: str = _SENTINEL
-
-    @validator("*")
-    def populate_conn_str(cls, v):
-        if v in [None, "", _SENTINEL]:
-            raise ValueError("Environment variables were not properly loaded")
-        return v
-
-    @property
-    def db(self):
-        return f"Resan{self.app_env}"
-
-    class Config:
-        env_file = ".env"
-
+from api.settings import Settings
 
 settings = Settings()
 client = motor.motor_asyncio.AsyncIOMotorClient(settings.mongo_conn_str)
