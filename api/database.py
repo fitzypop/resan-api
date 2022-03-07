@@ -19,8 +19,9 @@ class Settings(BaseSettings):
 
     @validator("*")
     def populate_conn_str(cls, v):
-        if v == _SENTINEL:
-            raise RuntimeError("Environment variables were not properly loaded")
+        if v in [None, "", _SENTINEL]:
+            raise ValueError("Environment variables were not properly loaded")
+        return v
 
     @property
     def db(self):
