@@ -13,8 +13,6 @@ class MongoObjectId(ObjectId):
     @classmethod
     def __modify_schema__(cls, field_schema: dict) -> None:
         field_schema.update(
-            examples=["5f85f36d6dfecacc68428a46", "ffffffffffffffffffffffff"],
-            example="5f85f36d6dfecacc68428a46",
             type="string",
         )
 
@@ -38,14 +36,16 @@ class ExerciseType(str, Enum):
     OTHER = "Other"
 
 
-class Exercise(MongoBaseModel):
-    id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
+class Exercise(BaseModel):
     name: str
     type: ExerciseType
 
+
+class ExerciseInDb(Exercise, MongoBaseModel):
+    id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
+
     class Config:
         allow_population_by_field_name = True
-        schema_extras = {"example": {}}
 
 
 # TODO: What kind of relationship should user and userprofiles have?

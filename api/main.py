@@ -8,7 +8,7 @@ from api.database import (
     get_app_env,
     list_collections,
 )
-from api.models import Exercise
+from api.models import Exercise, ExerciseInDb
 
 app = FastAPI()
 
@@ -17,6 +17,7 @@ app = FastAPI()
 
 @app.get("/", include_in_schema=False)
 def read_root():
+    """Redirect root access to swagger docs."""
     return RedirectResponse("/docs")
 
 
@@ -29,13 +30,13 @@ async def get_collections():
         raise HTTPException(404, "There are no collections in this database")
 
 
-@app.get("/exercise/{name}", response_model=Exercise)
+@app.get("/exercise/{name}", response_model=ExerciseInDb)
 async def get_exercise(name: str):
     response = await fetch_exercise(name)
     return response
 
 
-@app.get("/exercises", response_model=list[Exercise])
+@app.get("/exercises", response_model=list[ExerciseInDb])
 async def get_exercises():
     response = await fetch_all_exercises()
     if response:
@@ -44,13 +45,14 @@ async def get_exercises():
         raise HTTPException(404, "data not found")
 
 
-@app.post("/exercise")
+@app.post("/exercise", response_model=ExerciseInDb, status_code=201)
 async def post_exercise(exercise: Exercise):
-    response = await create_exercise(exercise)
-    if response:
-        return response
-    else:
-        raise HTTPException(500)
+    try:
+        response = await create_exercise(exercise)
+    except RuntimeError as e:
+        raise HTTPException(500, detail=e.args[0])
+
+    return response.dict()
 
 
 @app.get("/env", response_model=dict[str, str])
