@@ -8,9 +8,11 @@ from api.database import (
     get_app_env,
     list_collections,
 )
-from api.model import Exercise
+from api.models import Exercise
 
 app = FastAPI()
+
+# use devtools.debug() instead of print()
 
 
 @app.get("/", include_in_schema=False)

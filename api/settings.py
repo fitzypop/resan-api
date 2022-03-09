@@ -1,7 +1,9 @@
 from pydantic import BaseSettings, validator
 
 
-class Settings(BaseSettings):
+# No need to import and instantiate this class
+# Use settings object below
+class _Settings(BaseSettings):
     mongo_conn_str: str = ""
     app_env = ""
 
@@ -17,3 +19,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+
+
+settings = _Settings()

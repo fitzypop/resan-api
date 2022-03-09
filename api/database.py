@@ -1,9 +1,8 @@
 import motor.motor_asyncio
 
-from api.model import Exercise
-from api.settings import Settings
+from api.models import Exercise
+from api.settings import settings
 
-settings = Settings()
 client = motor.motor_asyncio.AsyncIOMotorClient(settings.mongo_conn_str)
 database = client[settings.db]
 collection = database["Exercises"]
@@ -26,8 +25,7 @@ async def fetch_all_exercises() -> list[Exercise]:
 
 
 async def create_exercise(exercise: Exercise) -> Exercise:
-    result = await collection.insert_one(exercise)
-    return exercise
+    return await collection.insert_one(exercise)
 
 
 async def update_exercise(name: str, type: str) -> Exercise:
