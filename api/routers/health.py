@@ -1,9 +1,9 @@
-from api.database import mongo_db
+from api.database import client
 from fastapi import APIRouter
 
 router = APIRouter(tags=["health"])
 
 
 @router.get("/health")
-def health_check():
-    return mongo_db.server_info()
+async def health_check():
+    return await client.server_info()
