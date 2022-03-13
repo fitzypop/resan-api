@@ -8,8 +8,8 @@ mongo_db = client[settings.db]
 collection = mongo_db["Exercises"]
 
 
-async def list_collections() -> list[str]:
-    return await mongo_db.list_collection_names()
+# async def list_collections() -> list[str]:
+#     return await mongo_db.list_collection_names()
 
 
 async def fetch_exercise(name: str) -> Exercise | None:
