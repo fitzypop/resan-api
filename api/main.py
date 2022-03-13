@@ -1,11 +1,10 @@
-from devtools import debug
 from fastapi import FastAPI, Response, status
 from starlette.responses import RedirectResponse
 
-from api.database import client
+from api.database import health_check as db_health_check
 from api.routers import exercises
 
-app = FastAPI()
+app = FastAPI(title="Resan API")
 
 app.include_router(exercises.router)
 
@@ -18,15 +17,16 @@ def read_root():
     return RedirectResponse("/docs")
 
 
-@app.get("/health", tags=["health check"])
+@app.get("/health", tags=["health check"], status_code=200)
 async def health_check(response: Response):
     try:
-        db_results = await client.server_info()
-        debug(db_results)
+        db_results = await db_health_check()
         if db_results:
-            return {"healthy": True}
+            result = {"healthy": True, "db_status": "ok" if db_results["ok"] else "bad"}
+        else:
+            raise Exception()
     except Exception:
-        pass
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        result = {"healthy": False, "db_status": "not connected"}
 
-    response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-    return {"healthy": False}
+    return result

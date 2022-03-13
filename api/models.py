@@ -36,12 +36,18 @@ class ExerciseType(str, Enum):
     OTHER = "Other"
 
 
-class Exercise(BaseModel):
+class ExerciseBase(BaseModel):
     name: str
     type: ExerciseType
 
 
-class ExerciseInDb(Exercise, MongoBaseModel):
+class ExerciseIn(ExerciseBase):
+    """Use this class for the Body type"""
+
+    pass
+
+
+class Exercise(ExerciseBase, MongoBaseModel):
     id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
 
     class Config:
