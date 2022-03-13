@@ -45,7 +45,3 @@ async def update_exercise(name: str, type: str) -> Exercise:
 async def delete_exercise(name: str) -> bool:
     await collection.delete_one({"name": name})
     return True
-
-
-def get_app_env() -> str:
-    return settings.app_env or ""

@@ -1,19 +1,18 @@
-from fastapi import FastAPI, HTTPException
+from devtools import debug
+from fastapi import FastAPI, HTTPException, Response, status
 from starlette.responses import RedirectResponse
 
 from api.database import (
+    client,
     create_exercise,
     fetch_all_exercises,
     fetch_exercise,
-    get_app_env,
     list_collections,
 )
 from api.models import Exercise, ExerciseInDb
-from api.routers import health
 
 app = FastAPI()
 
-app.include_router(health.router)
 
 # use devtools.debug() instead of print()
 
@@ -22,6 +21,20 @@ app.include_router(health.router)
 def read_root():
     """Redirect root access to swagger docs."""
     return RedirectResponse("/docs")
+
+
+@app.get("/health", tags=["health check"])
+async def health_check(response: Response):
+    try:
+        db_results = await client.server_info()
+        debug(db_results)
+        if db_results:
+            return {"healthy": True}
+    except Exception:
+        pass
+
+    response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    return {"healthy": False}
 
 
 @app.get("/collections", response_model=list[str])
@@ -56,9 +69,3 @@ async def post_exercise(exercise: Exercise):
         raise HTTPException(500, detail=e.args[0])
 
     return response.dict()
-
-
-@app.get("/env", response_model=dict[str, str])
-def get_env():
-    env = get_app_env()
-    return {"app_env": env}
