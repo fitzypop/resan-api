@@ -4,12 +4,12 @@ from api.models import Exercise, ExerciseInDb
 from api.settings import settings
 
 client = motor.motor_asyncio.AsyncIOMotorClient(settings.mongo_conn_str)
-database = client[settings.db]
-collection = database["Exercises"]
+mongo_db = client[settings.db]
+collection = mongo_db["Exercises"]
 
 
 async def list_collections() -> list[str]:
-    return await database.list_collection_names()
+    return await mongo_db.list_collection_names()
 
 
 async def fetch_exercise(name: str) -> Exercise | None:

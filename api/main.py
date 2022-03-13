@@ -9,8 +9,11 @@ from api.database import (
     list_collections,
 )
 from api.models import Exercise, ExerciseInDb
+from api.routers import health
 
 app = FastAPI()
+
+app.include_router(health.router)
 
 # use devtools.debug() instead of print()
 
