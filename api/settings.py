@@ -5,7 +5,7 @@ from pydantic import BaseSettings, validator
 # Please import as `from api import api_settings`
 
 
-cla ss APISettings:
+class APISettings:
     """I couldn't figure out how to dynamically add fields to a `BaseSettings` model.
     So, I made a wrapper around it to add aditional field during `__init__()`."""
 
