@@ -1,10 +1,10 @@
 import motor.motor_asyncio
 
 from api.models import Exercise, ExerciseIn
-from api.settings import settings
+from api.settings import api_settings
 
-client = motor.motor_asyncio.AsyncIOMotorClient(settings.mongo_conn_str)
-mongo_db = client[settings.db]
+client = motor.motor_asyncio.AsyncIOMotorClient(api_settings.db_conn_str)
+mongo_db = client[api_settings.db_name]
 collection = mongo_db["Exercises"]
 
 

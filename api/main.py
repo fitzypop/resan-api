@@ -5,10 +5,7 @@ from api.database import health_check as db_health_check
 from api.routers import exercises
 
 app = FastAPI(title="Resan API")
-
 app.include_router(exercises.router)
-
-# use devtools.debug() instead of print()
 
 
 @app.get("/", include_in_schema=False)
