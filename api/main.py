@@ -2,10 +2,12 @@ from fastapi import FastAPI, Response, status
 from starlette.responses import RedirectResponse
 
 from api.database import health_check as db_health_check
-from api.routers import exercises
+from api.routers import exercises, sign_up, users
 
 app = FastAPI(title="Resan API")
 app.include_router(exercises.router)
+app.include_router(sign_up.router)
+app.include_router(users.router)
 
 
 @app.get("/", include_in_schema=False)

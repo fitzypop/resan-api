@@ -1,21 +1,25 @@
-from pydantic import BaseSettings, validator
+from functools import lru_cache
+from typing import Any
 
-# DO NOT IMPORT FROM HERE
-# There is a global apisettings object in api/__init__.py/
-# Please import as `from api import api_settings`
+from pydantic import BaseSettings, validator
 
 
 class APISettings:
-    """I couldn't figure out how to dynamically add fields to a `BaseSettings` model.
-    So, I made a wrapper around it to add aditional field during `__init__()`."""
+    """A proxy wrapper around a pydantic Settings object.
 
-    _instance = None
+    Use the function below to get an instance of this class.
+
+    I couldn't figure out pydantics dynamic field types,
+    so I made a wrapper with the attrs I need.
+
+    """
 
     class Settings(BaseSettings):
-        mongo_conn_str: str = ""
-        mongo_username: str = ""
-        mongo_password: str = ""
+        db_conn_str: str = ""
+        db_username: str = ""
+        db_password: str = ""
         app_env = ""
+        debug: bool = False
 
         class Config:
             env_file = ".env"
@@ -26,17 +30,21 @@ class APISettings:
                 raise ValueError("Env variables not loaded.")
             return v
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(APISettings, cls).__new__(cls)
-        return cls._instance
-
     def __init__(self) -> None:
         self._settings = self.Settings()
-        self.db_conn_str = self._settings.mongo_conn_str.format(
-            self._settings.mongo_username, self._settings.mongo_password
+        self.db_conn_str = self._settings.db_conn_str.format(
+            self._settings.db_username, self._settings.db_password
         )
         self.db_name = f"Resan{self._settings.app_env}"
 
+    def __getattr__(self, item) -> Any:
+        return getattr(self._settings, item)
 
+
+# Replaced Singleton pattern with lru_cache
 api_settings = APISettings()
+
+
+@lru_cache
+def get_settings() -> APISettings:
+    return api_settings

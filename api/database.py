@@ -1,10 +1,13 @@
 import motor.motor_asyncio
+from pydantic import EmailStr
 
-from api.models import Exercise, ExerciseIn
-from api.settings import api_settings
+from api.models.db_models import Exercise, User
+from api.models.json_models import ExerciseIn
+from api.settings import get_settings
 
-client = motor.motor_asyncio.AsyncIOMotorClient(api_settings.db_conn_str)
-mongo_db = client[api_settings.db_name]
+settings = get_settings()
+client = motor.motor_asyncio.AsyncIOMotorClient(settings.db_conn_str)
+mongo_db = client[settings.db_name]
 collection = mongo_db["Exercises"]
 
 
@@ -49,3 +52,18 @@ async def delete_exercise(name: str) -> bool:
 
 async def health_check():
     return await client.server_info()
+
+
+def hash_password(password: str) -> str:
+    return f"really-bad-hash-{password}"
+
+
+async def email_already_exists(email: EmailStr) -> bool:
+    return await collection.find
+
+
+async def create_user(new_user):
+    # check for unique email
+    hashed = hash_password(new_user.password)
+
+    return User(**new_user.dict(), password=hashed)

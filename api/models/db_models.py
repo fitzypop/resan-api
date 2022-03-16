@@ -1,6 +1,6 @@
-from enum import Enum
 from typing import Any
 
+from api.models.base import ExerciseBase
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr, Field
 
@@ -28,25 +28,6 @@ class MongoBaseModel(BaseModel):
         json_encoders = {ObjectId: str}
 
 
-class ExerciseType(str, Enum):
-    RESISTANCE = "Resistance"
-    BODY_WEIGHT = "Body Weight"
-    CIRCUIT = "Circuit"
-    CARDIO = "Cardio"
-    OTHER = "Other"
-
-
-class ExerciseBase(BaseModel):
-    name: str
-    type: ExerciseType
-
-
-class ExerciseIn(ExerciseBase):
-    """Use this class for the Body type"""
-
-    pass
-
-
 class Exercise(ExerciseBase, MongoBaseModel):
     id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
 
@@ -54,12 +35,8 @@ class Exercise(ExerciseBase, MongoBaseModel):
         allow_population_by_field_name = True
 
 
-# TODO: What kind of relationship should user and userprofiles have?
 class User(MongoBaseModel):
     user_id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
     email: EmailStr
+    username: str | None = None
     password: str
-
-
-class UserProfile(MongoBaseModel):
-    user_id: MongoObjectId
