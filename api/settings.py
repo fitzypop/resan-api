@@ -4,7 +4,7 @@ from typing import Any
 from pydantic import BaseSettings, validator
 
 
-class APISettings:
+class _APISettings:
     """A proxy wrapper around a pydantic Settings object.
 
     Use the function below to get an instance of this class.
@@ -15,11 +15,11 @@ class APISettings:
     """
 
     class Settings(BaseSettings):
-        db_conn_str: str = ""
-        db_username: str = ""
-        db_password: str = ""
+        db_conn_str = ""
+        db_username = ""
+        db_password = ""
         app_env = ""
-        debug: bool = False
+        debug = False
 
         class Config:
             env_file = ".env"
@@ -42,9 +42,9 @@ class APISettings:
 
 
 # Replaced Singleton pattern with lru_cache
-api_settings = APISettings()
-
-
 @lru_cache
-def get_settings() -> APISettings:
+def get_settings() -> _APISettings:
     return api_settings
+
+
+api_settings = _APISettings()
