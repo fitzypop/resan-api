@@ -24,9 +24,9 @@ class _APISettings:
         class Config:
             env_file = ".env"
 
-        @validator("*", always=True)
+        @validator("db_conn_str", "db_username", "db_password", "app_env", always=True)
         def must_have_value(cls, v):
-            if v in [None, ""]:
+            if not v:
                 raise ValueError("Env variables not loaded.")
             return v
 
@@ -49,6 +49,14 @@ class _APISettings:
         raise NotImplementedError(
             f"{_APISettings.__name__} does not support deleting attributes."
         )
+
+    @property
+    def title(self) -> str:
+        if not hasattr(self, "_title"):
+            self._title = "Resan API"
+            if self.app_env != "Prod":
+                self._title = f"{self.app_env} - {self._title}"
+        return self._title
 
 
 # Replaced Singleton pattern with lru_cache

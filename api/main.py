@@ -1,13 +1,19 @@
 from fastapi import FastAPI, Response, status
 from starlette.responses import RedirectResponse
 
-from api.database import health_check as db_health_check
+from api.database import health_check, manage_db
 from api.routers import exercises, sign_up, users
+from api.settings import api_settings
 
-app = FastAPI(title="Resan API")
+app = FastAPI(title=api_settings.title)
 app.include_router(exercises.router)
 app.include_router(sign_up.router)
 app.include_router(users.router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    await manage_db()
 
 
 @app.get("/", include_in_schema=False)
@@ -17,9 +23,9 @@ def read_root():
 
 
 @app.get("/health", tags=["health check"], status_code=200)
-async def health_check(response: Response):
+async def get_health_check(response: Response):
     try:
-        db_results = await db_health_check()
+        db_results = await health_check()
         if db_results:
             result = {"healthy": True, "db_status": "ok" if db_results["ok"] else "bad"}
         else:

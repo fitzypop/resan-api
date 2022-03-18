@@ -2,4 +2,4 @@ freeze:
 	poetry export --format requirements.txt --output requirements
 
 run:
-	poetry run uvicorn api:app --reload
+	poetry run uvicorn api.main:app --reload

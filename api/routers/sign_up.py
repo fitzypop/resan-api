@@ -1,7 +1,7 @@
 from http.client import HTTPException
 
 from api.database import create_user
-from api.models.json_models import NewUser
+from api.models import NewUser
 from fastapi import APIRouter, status
 
 router = APIRouter(tags=["Sign Up"])

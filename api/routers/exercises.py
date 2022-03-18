@@ -1,6 +1,5 @@
 from api.database import create_exercise, fetch_all_exercises, fetch_exercise
-from api.models.db_models import Exercise
-from api.models.json_models import ExerciseIn
+from api.models import Exercise, ExerciseIn
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter(tags=["exercise"])
