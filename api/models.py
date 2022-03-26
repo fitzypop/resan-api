@@ -1,8 +1,11 @@
+import re
 from enum import Enum
 from typing import Any
 
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr, Field, validator
+
+from api.constants import EMAIL_REGEX
 
 """ Base Objects """
 
@@ -25,11 +28,6 @@ class MongoObjectId(ObjectId):
         return v
 
 
-class MongoBaseModel(BaseModel):
-    class Config:
-        json_encoders = {ObjectId: str}
-
-
 class ExerciseType(str, Enum):
     RESISTANCE = "Resistance"
     BODY_WEIGHT = "Body Weight"
@@ -41,7 +39,7 @@ class ExerciseType(str, Enum):
 """ JSON Models"""
 
 
-class ExerciseIn(BaseModel):
+class ExerciseJSON(BaseModel):
     name: str
     type: ExerciseType
 
@@ -52,10 +50,15 @@ class ExerciseIn(BaseModel):
         return v.title()
 
 
-class NewUser(BaseModel):
+class UserJSON(BaseModel):
     email: EmailStr = Field(..., example="some_email@gmail.com")
-    username: str | None = Field(..., example="fitzy")
     password: str = Field(..., example="Abc12345?Edf")
+
+    @validator("email")
+    def valid_email(cls, v):
+        if not re.fullmatch(EMAIL_REGEX, v):
+            raise ValueError("The entered email is not valid.")
+        return v
 
     @validator("password")
     def valid_password(cls, v):
@@ -64,18 +67,26 @@ class NewUser(BaseModel):
         return v
 
 
+# TODO: need to validate email string
+# TODO: email validation setup? i.e. "We sent an email to your email to verify" then redirect?
+
 """ DB Models"""
 
 
-class Exercise(ExerciseIn, MongoBaseModel):
+class Exercise(ExerciseJSON):
     id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
 
     class Config:
+        json_encoders = {ObjectId: str}
         allow_population_by_field_name = True
 
 
-class User(MongoBaseModel):
-    user_id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
-    email: EmailStr
+class User(BaseModel):
+    id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
+    email: str = Field(...)
+    password: str = Field(...)
     username: str | None = None
-    password: str
+
+    class Config:
+        json_encoders = {ObjectId: str}
+        allow_population_by_field_name = True

@@ -1,7 +1,7 @@
 import motor.motor_asyncio
-from pydantic import EmailStr
 
-from api.models import Exercise, ExerciseIn, User
+from api.models import Exercise, ExerciseJSON, User, UserJSON
+from api.security.hash import hash_password
 from api.settings import get_settings
 
 settings = get_settings()
@@ -33,7 +33,7 @@ async def fetch_all_exercises() -> list[Exercise]:
     return exercises
 
 
-async def create_exercise(exercise: ExerciseIn) -> Exercise:
+async def create_exercise(exercise: ExerciseJSON) -> Exercise:
     doc = exercise.dict()
 
     found_doc = await exr_coll.find_one(doc)
@@ -61,16 +61,29 @@ async def health_check():
     return await client.server_info()
 
 
-def hash_password(password: str) -> str:
-    return f"really-bad-hash-{password}"
-
-
-async def email_already_exists(email: EmailStr) -> bool:
-    return await exr_coll.find
-
-
-async def create_user(new_user):
+async def create_user(new_user: UserJSON, hashed_password: str) -> User:
     # check for unique email
-    hashed = hash_password(new_user.password)
+    user = new_user.dict() | {"password": hashed_password}
+    try:
+        _ = await users_coll.insert_one(user)
+    except Exception:
+        raise RuntimeError
 
-    return await users_coll.insert_one(User(**new_user.dict(), password=hashed).dict())
+    return User(**user)
+
+
+async def get_user(user_body: UserJSON) -> User:
+    hashed_password = hash_password(user_body.password)
+    user = await users_coll.find_one(
+        {"email": user_body.email, "password": hashed_password}
+    )
+    if not user:
+        raise RuntimeError("Credentials")
+
+    return user
+
+
+async def update_user_password(user: User):
+    _ = await users_coll.update_one(
+        {"_id": user.id}, {"$set": {"password": user.password}}
+    )

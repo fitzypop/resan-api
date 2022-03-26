@@ -1,5 +1,5 @@
 from api.database import create_exercise, fetch_all_exercises, fetch_exercise
-from api.models import Exercise, ExerciseIn
+from api.models import Exercise, ExerciseJSON
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter(tags=["exercise"])
@@ -21,7 +21,7 @@ async def get_exercises():
 
 
 @router.post("/exercise", response_model=Exercise, status_code=201)
-async def post_exercise(exercise: ExerciseIn):
+async def post_exercise(exercise: ExerciseJSON):
     try:
         response = await create_exercise(exercise)
     except RuntimeError as e:

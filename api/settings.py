@@ -18,7 +18,7 @@ class _APISettings:
         db_conn_str = ""
         db_username = ""
         db_password = ""
-        app_env = ""
+        app_env: str = "Local"  # available envs: Local, Stage, Prod
         debug = False
 
         class Config:
@@ -36,6 +36,9 @@ class _APISettings:
             self._settings.db_username, self._settings.db_password
         )
         self.db_name = f"Resan{self._settings.app_env}"
+        self.title = "Resan API"
+        if self.app_env != "Prod":
+            self.title = f"{self.app_env} - {self.title}"
 
     def __getattr__(self, attr) -> Any:
         _attr = getattr(self._settings, attr)
@@ -49,14 +52,6 @@ class _APISettings:
         raise NotImplementedError(
             f"{_APISettings.__name__} does not support deleting attributes."
         )
-
-    @property
-    def title(self) -> str:
-        if not hasattr(self, "_title"):
-            self._title = "Resan API"
-            if self.app_env != "Prod":
-                self._title = f"{self.app_env} - {self._title}"
-        return self._title
 
 
 # Replaced Singleton pattern with lru_cache

@@ -2,12 +2,11 @@ from fastapi import FastAPI, Response, status
 from starlette.responses import RedirectResponse
 
 from api.database import health_check, manage_db
-from api.routers import exercises, sign_up, users
+from api.routers import exercises, users
 from api.settings import api_settings
 
 app = FastAPI(title=api_settings.title)
 app.include_router(exercises.router)
-app.include_router(sign_up.router)
 app.include_router(users.router)
 
 
