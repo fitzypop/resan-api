@@ -1,12 +1,12 @@
 import motor.motor_asyncio
+from devtools import debug
+from pydantic import EmailStr
 
 from api.models import Exercise, ExerciseJSON, User, UserJSON
-from api.security.hash import hash_password
-from api.settings import get_settings
+from api.settings import API_CONFIG
 
-settings = get_settings()
-client = motor.motor_asyncio.AsyncIOMotorClient(settings.mongo_conn_str)
-db = client[settings.db_name]
+client = motor.motor_asyncio.AsyncIOMotorClient(API_CONFIG.mongo_conn_str)
+db = client[API_CONFIG.db_name]
 exr_coll = db["exercises"]
 users_coll = db["users"]
 
@@ -72,11 +72,8 @@ async def create_user(new_user: UserJSON, hashed_password: str) -> User:
     return User(**user)
 
 
-async def get_user(user_body: UserJSON) -> User:
-    hashed_password = hash_password(user_body.password)
-    user = await users_coll.find_one(
-        {"email": user_body.email, "password": hashed_password}
-    )
+async def get_user(user_email: EmailStr) -> User:
+    user = await users_coll.find_one({"email": user_email})
     if not user:
         raise RuntimeError("Credentials")
 
@@ -87,3 +84,12 @@ async def update_user_password(user: User):
     _ = await users_coll.update_one(
         {"_id": user.id}, {"$set": {"password": user.password}}
     )
+
+
+async def get_all_users() -> list[User]:
+    users = []
+    cursor = users_coll.find({})
+    debug(cursor)
+    async for user in cursor:
+        users.append(User(**user))
+    return users

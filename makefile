@@ -3,3 +3,6 @@ freeze:
 
 run:
 	poetry run uvicorn api.main:app --reload
+
+secret_key:
+	openssl rand -hex 32

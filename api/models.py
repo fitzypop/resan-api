@@ -1,11 +1,8 @@
-import re
 from enum import Enum
 from typing import Any
 
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr, Field, validator
-
-from api.constants import EMAIL_REGEX
 
 """ Base Objects """
 
@@ -54,12 +51,6 @@ class UserJSON(BaseModel):
     email: EmailStr = Field(..., example="some_email@gmail.com")
     password: str = Field(..., example="Abc12345?Edf")
 
-    @validator("email")
-    def valid_email(cls, v):
-        if not re.fullmatch(EMAIL_REGEX, v):
-            raise ValueError("The entered email is not valid.")
-        return v
-
     @validator("password")
     def valid_password(cls, v):
         if len(v) < 8:
@@ -86,6 +77,7 @@ class User(BaseModel):
     email: str = Field(...)
     password: str = Field(...)
     username: str | None = None
+    disabled: bool | None = None
 
     class Config:
         json_encoders = {ObjectId: str}

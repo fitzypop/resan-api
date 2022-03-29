@@ -1,10 +1,9 @@
-from functools import lru_cache
 from typing import Any
 
 from pydantic import BaseSettings, validator
 
 
-class _APISettings:
+class _APIConfig:
     """A proxy wrapper around a pydantic Settings object.
 
     Use the function below to get an instance of this class.
@@ -14,31 +13,50 @@ class _APISettings:
 
     """
 
-    class Settings(BaseSettings):
+    class Secrets(BaseSettings):
         db_conn_str = ""
         db_username = ""
         db_password = ""
         app_env: str = "Local"  # available envs: Local, Stage, Prod
         debug = False
+        secret_key: str = ""
 
         class Config:
             env_file = ".env"
 
-        @validator("db_conn_str", "db_username", "db_password", "app_env", always=True)
+        @validator("*", always=True)
         def must_have_value(cls, v):
-            if not v:
+            if isinstance(v, bool):
+                return v
+            elif not v:
                 raise ValueError("Env variables not loaded.")
             return v
 
     def __init__(self) -> None:
-        self._settings = self.Settings()
-        self.mongo_conn_str = self._settings.db_conn_str.format(
-            self._settings.db_username, self._settings.db_password
+        object_setattr = object.__setattr__
+        object_setattr(self, "_settings", self.Secrets())
+        object_setattr(
+            self,
+            "mongo_conn_str",
+            self._settings.db_conn_str.format(
+                self._settings.db_username, self._settings.db_password
+            ),
         )
-        self.db_name = f"Resan{self._settings.app_env}"
-        self.title = "Resan API"
+        object_setattr(self, "db_name", f"Resan{self._settings.app_env}")
+        title = "Resan API"
         if self.app_env != "Prod":
-            self.title = f"{self.app_env} - {self.title}"
+            title = f"{self.app_env} - {title}"
+        object_setattr(self, "title", title)
+
+        # self.__dict__["_settings"] = self.Secrets()
+        # self.__dict["mongo_conn_str"] = self._settings.db_conn_str.format(
+        #     self._settings.db_username, self._settings.db_password
+        # )
+        # self.__dict__["db_name"] = f"Resan{self._settings.app_env}"
+        # title = "Resan API"
+        # if self.app_env != "Prod":
+        #     title = f"{self.app_env} - {self.title}"
+        # self.__dict__["title"] = title
 
     def __getattr__(self, attr) -> Any:
         _attr = getattr(self._settings, attr)
@@ -50,17 +68,11 @@ class _APISettings:
 
     def __delattr__(self, __name: str) -> None:
         raise NotImplementedError(
-            f"{_APISettings.__name__} does not support deleting attributes."
+            f"{_APIConfig.__name__} does not support deleting attributes."
         )
 
-
-# Replaced Singleton pattern with lru_cache
-
-# Please either import the function or module variable below.
-# We don't need multiple instances of these settings.
-@lru_cache
-def get_settings() -> _APISettings:
-    return api_settings
+    def __setattr__(self, __name: str, __value: Any) -> None:
+        raise NotImplementedError()
 
 
-api_settings = _APISettings()
+API_CONFIG = _APIConfig()
