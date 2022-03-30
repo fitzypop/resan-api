@@ -10,7 +10,6 @@ db = client[API_CONFIG.db_name]
 exr_coll = db["exercises"]
 users_coll = db["users"]
 
-
 # async def list_collections() -> list[str]:
 #     return await mongo_db.list_collection_names()
 
@@ -64,10 +63,12 @@ async def health_check():
 async def create_user(new_user: UserJSON, hashed_password: str) -> User:
     # check for unique email
     user = new_user.dict() | {"password": hashed_password}
-    try:
-        _ = await users_coll.insert_one(user)
-    except Exception:
-        raise RuntimeError
+    # try:
+    #     _ = await users_coll.insert_one(user)
+    # except Exception:
+    #     raise RuntimeError
+
+    _ = await users_coll.insert_one(user)
 
     return User(**user)
 
@@ -77,12 +78,13 @@ async def get_user(user_email: EmailStr) -> User:
     if not user:
         raise RuntimeError("Credentials")
 
-    return user
+    return User(**user)
 
 
 async def update_user_password(user: User):
     _ = await users_coll.update_one(
-        {"_id": user.id}, {"$set": {"password": user.password}}
+        {"_id": user.user_id},
+        {"$set": {"hashed_password": user.hashed_password}},
     )
 
 

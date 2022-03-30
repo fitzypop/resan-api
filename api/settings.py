@@ -33,37 +33,25 @@ class _APIConfig:
             return v
 
     def __init__(self) -> None:
-        object_setattr = object.__setattr__
-        object_setattr(self, "_settings", self.Secrets())
-        object_setattr(
-            self,
-            "mongo_conn_str",
-            self._settings.db_conn_str.format(
-                self._settings.db_username, self._settings.db_password
-            ),
+        # self.__dict__["_settings"] = self.Secrets()
+        secrets = self.Secrets()
+        self.__dict__["_secrets"] = secrets
+        for k, v in secrets.__dict__.items():
+            self.__dict__[k] = v
+
+        self.__dict__["mongo_conn_str"] = self.db_conn_str.format(
+            self.db_username, self.db_password
         )
-        object_setattr(self, "db_name", f"Resan{self._settings.app_env}")
+        self.__dict__["db_name"] = f"Resan{self.app_env}"
         title = "Resan API"
         if self.app_env != "Prod":
             title = f"{self.app_env} - {title}"
-        object_setattr(self, "title", title)
-
-        # self.__dict__["_settings"] = self.Secrets()
-        # self.__dict["mongo_conn_str"] = self._settings.db_conn_str.format(
-        #     self._settings.db_username, self._settings.db_password
-        # )
-        # self.__dict__["db_name"] = f"Resan{self._settings.app_env}"
-        # title = "Resan API"
-        # if self.app_env != "Prod":
-        #     title = f"{self.app_env} - {self.title}"
-        # self.__dict__["title"] = title
+        self.__dict__["title"] = title
 
     def __getattr__(self, attr) -> Any:
-        _attr = getattr(self._settings, attr)
+        _attr = getattr(self._secrets, attr)
         if hasattr(type(_attr), "__get__"):  # attr is a method
-            _attr = _attr.__get__(
-                self._settings
-            )  # set _settings as self on method call
+            _attr = _attr.__get__(self._secrets)  # set _settings as self on method call
         return _attr
 
     def __delattr__(self, __name: str) -> None:

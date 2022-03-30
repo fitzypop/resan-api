@@ -20,6 +20,8 @@ python-multipart = "^0.0.5"
 flake8 = "^4.0.1"
 black = "^22.1.0"
 devtools = "^0.8.0"
+pytest = "^7.1.1"
+pytest-sugar = "^0.9.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

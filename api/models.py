@@ -73,11 +73,32 @@ class Exercise(ExerciseJSON):
 
 
 class User(BaseModel):
-    id: MongoObjectId = Field(default_factory=MongoObjectId, alias="_id")
-    email: str = Field(...)
-    password: str = Field(...)
-    username: str | None = None
+    _id: MongoObjectId = Field(default_factory=MongoObjectId)
+    email: EmailStr = Field(...)
     disabled: bool | None = None
+    hashed_password: str = Field(...)
+    scopes: list[str] = Field(default_factory=list)
+
+    @property
+    def user_id(self) -> ObjectId:
+        return self._id
+
+    @property
+    def username(self) -> EmailStr:
+        """Returns a user's email as username.
+
+        Because I am using OAuth2 Password grant type,
+        the BearerToken generator expects a 'username.' But the
+        actual OAuth2 specs doesn't care what the username string actually is.
+
+        Returns:
+            EmailStr: User's Email as Username
+        """
+        return self.email
+
+    @username.setter
+    def username(self, v: str) -> None:
+        self.email = EmailStr(v)
 
     class Config:
         json_encoders = {ObjectId: str}
